@@ -113,17 +113,20 @@ app.get('/api/roles', (req, res) => {
 });
 
 // Start Express Server
-const server = app.listen(PORT, () => {
-  console.log(`=================================`);
-  console.log(`🌾 AgriTrade API Server Running  `);
-  console.log(`📡 Listening on: http://localhost:${PORT} `);
-  console.log(`=================================`);
-});
-
-// Keep-alive handle for smooth operation
-process.on('SIGINT', () => {
-  server.close(() => {
-    console.log('Server process terminated.');
-    process.exit(0);
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  const server = app.listen(PORT, () => {
+    console.log(`=================================`);
+    console.log(`🌾 AgriTrade API Server Running  `);
+    console.log(`📡 Listening on: http://localhost:${PORT} `);
+    console.log(`=================================`);
   });
-});
+
+  process.on('SIGINT', () => {
+    server.close(() => {
+      console.log('Server process terminated.');
+      process.exit(0);
+    });
+  });
+}
+
+module.exports = app;

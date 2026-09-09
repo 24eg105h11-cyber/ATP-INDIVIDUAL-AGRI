@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Environment files (JWT secrets, DB URIs)
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS & Editor
+.DS_Store
+.vscode/
+.idea/
