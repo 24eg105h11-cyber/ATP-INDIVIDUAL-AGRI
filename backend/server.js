@@ -112,6 +112,106 @@ app.get('/api/roles', (req, res) => {
   res.json({ success: true, roles: demoUsers });
 });
 
+// Produce Catalog Demo Data
+const produceCatalog = [
+  {
+    id: 'prod_01',
+    name: 'Organic Durum Wheat',
+    category: 'Grains',
+    grade: 'A+',
+    qualityScore: 99.4,
+    origin: 'Green Valley Farms, KS',
+    farmer: 'John Farmer',
+    quantity: '450 Metric Tons',
+    pricePerTon: '$340',
+    status: 'Verified & Available',
+    harvestDate: '2026-08-28',
+    moisture: '11.8%',
+    pesticideFree: true
+  },
+  {
+    id: 'prod_02',
+    name: 'Arabica Coffee Beans',
+    category: 'Specialty',
+    grade: 'AAA',
+    qualityScore: 98.9,
+    origin: 'Highland Estate, Rift Valley',
+    farmer: 'Samuel K.',
+    quantity: '120 Metric Tons',
+    pricePerTon: '$1,850',
+    status: 'In Transit',
+    harvestDate: '2026-09-02',
+    moisture: '10.5%',
+    pesticideFree: true
+  },
+  {
+    id: 'prod_03',
+    name: 'Hass Avocados',
+    category: 'Fruits',
+    grade: 'A',
+    qualityScore: 96.8,
+    origin: 'SunRidge Orchards',
+    farmer: 'Maria Lopez',
+    quantity: '85 Metric Tons',
+    pricePerTon: '$1,200',
+    status: 'Quality Passed',
+    harvestDate: '2026-09-05',
+    moisture: '68.0%',
+    pesticideFree: true
+  },
+  {
+    id: 'prod_04',
+    name: 'Long-Staple Premium Cotton',
+    category: 'Fiber',
+    grade: 'AAA',
+    qualityScore: 99.1,
+    origin: 'Delta Cooperative',
+    farmer: 'John Farmer',
+    quantity: '300 Metric Tons',
+    pricePerTon: '$890',
+    status: 'Verified & Available',
+    harvestDate: '2026-08-15',
+    moisture: '7.2%',
+    pesticideFree: true
+  }
+];
+
+// Dashboard Summary Stats Endpoint
+app.get('/api/dashboard/stats', (req, res) => {
+  res.json({
+    success: true,
+    stats: {
+      totalProduceTons: '1,420 MT',
+      verifiedQualityRate: '99.4%',
+      activeShipments: 18,
+      escrowSettled: '$4,280,500',
+      activeContracts: 24,
+      iotNodesOnline: 142
+    }
+  });
+});
+
+// Produce Catalog Endpoint
+app.get('/api/produce', (req, res) => {
+  res.json({
+    success: true,
+    count: produceCatalog.length,
+    produce: produceCatalog
+  });
+});
+
+// Contracts Endpoint
+app.get('/api/contracts', (req, res) => {
+  res.json({
+    success: true,
+    contracts: [
+      { id: 'CTR-8841', buyer: 'Global Buyer Inc.', seller: 'John Farmer', item: 'Organic Durum Wheat', value: '$153,000', status: 'In Escrow', date: '2026-09-10' },
+      { id: 'CTR-8839', buyer: 'AgriCorp Roasters', seller: 'Samuel K.', item: 'Arabica Coffee Beans', value: '$222,000', status: 'Settled', date: '2026-09-08' },
+      { id: 'CTR-8835', buyer: 'FreshMarket Co.', seller: 'Maria Lopez', item: 'Hass Avocados', value: '$102,000', status: 'Delivered', date: '2026-09-04' }
+    ]
+  });
+});
+
 // Start Express Server
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   const server = app.listen(PORT, () => {

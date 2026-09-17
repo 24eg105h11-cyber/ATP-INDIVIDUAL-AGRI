@@ -22,8 +22,12 @@ import {
   Loader2,
   X,
   Check,
-  Wifi
+  Wifi,
+  ArrowLeft,
+  Sparkles
 } from 'lucide-react'
+import LandingPage from './components/ui/LandingPage'
+import HomePage from './components/dashboard/HomePage'
 import './App.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
@@ -91,6 +95,18 @@ function SproutIcon(props) {
 }
 
 function App() {
+  const getInitialView = () => {
+    const path = window.location.pathname.toLowerCase()
+    if (path.includes('dashboard') || path.includes('home')) return 'dashboard'
+    return path.includes('login') ? 'login' : 'landing'
+  }
+
+  const [currentView, setCurrentView] = useState(getInitialView)
+  const [currentUser, setCurrentUser] = useState({
+    name: 'John Farmer',
+    email: 'farmer@agritrade.com',
+    role: 'farmer'
+  })
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -104,6 +120,27 @@ function App() {
   const [biometricSuccess, setBiometricSuccess] = useState(false)
   const [toastMessage, setToastMessage] = useState(null)
   const [backendConnected, setBackendConnected] = useState(false)
+
+  const navigateTo = (view) => {
+    setCurrentView(view)
+    const path = view === 'dashboard' ? '/dashboard' : view === 'login' ? '/login' : '/'
+    window.history.pushState({}, '', path)
+  }
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase()
+      if (path.includes('dashboard') || path.includes('home')) {
+        setCurrentView('dashboard')
+      } else if (path.includes('login')) {
+        setCurrentView('login')
+      } else {
+        setCurrentView('landing')
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   // Check backend server health status on mount
   useEffect(() => {
@@ -150,13 +187,31 @@ function App() {
 
       if (response.ok && data.success) {
         setBackendConnected(true)
-        triggerToast(`[Backend Connected] ${data.message}`)
+        if (data.user) {
+          setCurrentUser(data.user)
+        } else {
+          const roleObj = ROLES.find(r => r.id === selectedRole)
+          setCurrentUser({
+            name: roleObj ? roleObj.name : email.split('@')[0],
+            email: email,
+            role: selectedRole || 'farmer'
+          })
+        }
+        triggerToast(`[Backend Connected] Welcome ${data.user?.name || email}!`)
+        setTimeout(() => navigateTo('dashboard'), 600)
       } else {
         triggerToast(data.error || 'Authentication failed')
       }
     } catch (err) {
       console.warn('Backend API offline, using fallback auth response:', err)
-      triggerToast('Signed in successfully! (AgriTrade Local)')
+      const roleObj = ROLES.find(r => r.id === selectedRole)
+      setCurrentUser({
+        name: roleObj ? roleObj.name : (email ? email.split('@')[0] : 'John Farmer'),
+        email: email || 'farmer@agritrade.com',
+        role: selectedRole || 'farmer'
+      })
+      triggerToast('Signed in successfully! Transitioning to AgriTrade Home...')
+      setTimeout(() => navigateTo('dashboard'), 600)
     } finally {
       setIsLoading(false)
     }
@@ -168,28 +223,45 @@ function App() {
     setBiometricSuccess(false)
 
     setTimeout(async () => {
+      let loggedUser = ROLES[1] // Default Farmer
       try {
         const res = await fetch(`${API_BASE_URL}/api/auth/biometric`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         })
         const data = await res.json()
-        setBiometricScanning(false)
-        setBiometricSuccess(true)
+        if (data.user) loggedUser = data.user
+      } catch (err) {}
 
-        setTimeout(() => {
-          setBiometricModal(false)
-          triggerToast(`[Backend] ${data.message || 'Biometric Verification Passed'}`)
-        }, 1000)
-      } catch (err) {
-        setBiometricScanning(false)
-        setBiometricSuccess(true)
-        setTimeout(() => {
-          setBiometricModal(false)
-          triggerToast('Biometric Authentication Successful!')
-        }, 1000)
-      }
+      setBiometricScanning(false)
+      setBiometricSuccess(true)
+
+      setCurrentUser({
+        name: loggedUser.name || 'John Farmer',
+        email: loggedUser.email || 'farmer@agritrade.com',
+        role: loggedUser.role || 'farmer'
+      })
+
+      setTimeout(() => {
+        setBiometricModal(false)
+        triggerToast('Biometric Verification Passed! Welcome to AgriTrade.')
+        navigateTo('dashboard')
+      }, 1000)
     }, 1500)
+  }
+
+  if (currentView === 'landing') {
+    return <LandingPage onEnterLogin={() => navigateTo('login')} />
+  }
+
+  if (currentView === 'dashboard') {
+    return (
+      <HomePage
+        user={currentUser}
+        onLogout={() => navigateTo('landing')}
+        onGoLanding={() => navigateTo('landing')}
+      />
+    )
   }
 
   return (
@@ -207,6 +279,31 @@ function App() {
       {/* Top Header Bar */}
       <header className="top-header">
         <div className="brand-header-left">
+          <button
+            type="button"
+            className="back-hero-btn"
+            onClick={() => navigateTo('landing')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.45rem 0.95rem',
+              marginRight: '0.8rem',
+              borderRadius: '9999px',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              background: 'rgba(6, 26, 18, 0.7)',
+              color: '#34d399',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              backdropFilter: 'blur(8px)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <ArrowLeft size={16} />
+            <span>3D Hero</span>
+          </button>
+
           <div className="brand-logo-lockup">
             <div className="brand-icon-box">
               <Leaf className="brand-icon" size={26} />
