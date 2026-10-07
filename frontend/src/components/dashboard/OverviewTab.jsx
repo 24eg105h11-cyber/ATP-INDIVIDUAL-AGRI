@@ -61,7 +61,7 @@ export default function OverviewTab({ user, stats, onOpenNewBatch }) {
               <HandCoins size={20} />
             </div>
           </div>
-          <span className="card-val">{stats?.escrowSettled || '$4,280,500'}</span>
+          <span className="card-val">{stats?.escrowSettled || '₹3,54,00,000'}</span>
           <span className="card-subtext">
             <Clock size={14} /> &lt; 2 Sec Automated Payouts
           </span>
@@ -156,7 +156,7 @@ export default function OverviewTab({ user, stats, onOpenNewBatch }) {
             { text: 'Smart contract CTR-8841 executed for 450 MT Organic Durum Wheat.', time: '10 mins ago', type: 'contract' },
             { text: 'AI Inspection report generated: Batch #LOT-9842 scored 99.4% Grade A+.', time: '35 mins ago', type: 'quality' },
             { text: 'IoT Telemetry Alert: Cold-chain Fleet #142 temperature stabilized at 4.0°C.', time: '1 hour ago', type: 'logistics' },
-            { text: 'Escrow Payout of $153,000 released to John Farmer.', time: '2 hours ago', type: 'payout' }
+            { text: 'Escrow Payout of ₹1,28,25,000 released to John Farmer.', time: '2 hours ago', type: 'payout' }
           ].map((act, idx) => (
             <div
               key={idx}

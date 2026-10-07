@@ -123,7 +123,7 @@ const produceCatalog = [
     origin: 'Green Valley Farms, KS',
     farmer: 'John Farmer',
     quantity: '450 Metric Tons',
-    pricePerTon: '$340',
+    pricePerTon: '₹28,500',
     status: 'Verified & Available',
     harvestDate: '2026-08-28',
     moisture: '11.8%',
@@ -138,7 +138,7 @@ const produceCatalog = [
     origin: 'Highland Estate, Rift Valley',
     farmer: 'Samuel K.',
     quantity: '120 Metric Tons',
-    pricePerTon: '$1,850',
+    pricePerTon: '₹1,55,000',
     status: 'In Transit',
     harvestDate: '2026-09-02',
     moisture: '10.5%',
@@ -153,7 +153,7 @@ const produceCatalog = [
     origin: 'SunRidge Orchards',
     farmer: 'Maria Lopez',
     quantity: '85 Metric Tons',
-    pricePerTon: '$1,200',
+    pricePerTon: '₹98,000',
     status: 'Quality Passed',
     harvestDate: '2026-09-05',
     moisture: '68.0%',
@@ -168,7 +168,7 @@ const produceCatalog = [
     origin: 'Delta Cooperative',
     farmer: 'John Farmer',
     quantity: '300 Metric Tons',
-    pricePerTon: '$890',
+    pricePerTon: '₹72,000',
     status: 'Verified & Available',
     harvestDate: '2026-08-15',
     moisture: '7.2%',
@@ -184,7 +184,7 @@ app.get('/api/dashboard/stats', (req, res) => {
       totalProduceTons: '1,420 MT',
       verifiedQualityRate: '99.4%',
       activeShipments: 18,
-      escrowSettled: '$4,280,500',
+      escrowSettled: '₹3,54,00,000',
       activeContracts: 24,
       iotNodesOnline: 142
     }
@@ -205,9 +205,9 @@ app.get('/api/contracts', (req, res) => {
   res.json({
     success: true,
     contracts: [
-      { id: 'CTR-8841', buyer: 'Global Buyer Inc.', seller: 'John Farmer', item: 'Organic Durum Wheat', value: '$153,000', status: 'In Escrow', date: '2026-09-10' },
-      { id: 'CTR-8839', buyer: 'AgriCorp Roasters', seller: 'Samuel K.', item: 'Arabica Coffee Beans', value: '$222,000', status: 'Settled', date: '2026-09-08' },
-      { id: 'CTR-8835', buyer: 'FreshMarket Co.', seller: 'Maria Lopez', item: 'Hass Avocados', value: '$102,000', status: 'Delivered', date: '2026-09-04' }
+      { id: 'CTR-8841', buyer: 'Global Buyer Inc.', seller: 'John Farmer', item: 'Organic Durum Wheat', value: '₹1,28,25,000', status: 'In Escrow', date: '2026-09-10' },
+      { id: 'CTR-8839', buyer: 'AgriCorp Roasters', seller: 'Samuel K.', item: 'Arabica Coffee Beans', value: '₹1,86,00,000', status: 'Settled', date: '2026-09-08' },
+      { id: 'CTR-8835', buyer: 'FreshMarket Co.', seller: 'Maria Lopez', item: 'Hass Avocados', value: '₹83,30,000', status: 'Delivered', date: '2026-09-04' }
     ]
   });
 });

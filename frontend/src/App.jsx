@@ -26,7 +26,6 @@ import {
   ArrowLeft,
   Sparkles
 } from 'lucide-react'
-import LandingPage from './components/ui/LandingPage'
 import HomePage from './components/dashboard/HomePage'
 import './App.css'
 
@@ -98,7 +97,7 @@ function App() {
   const getInitialView = () => {
     const path = window.location.pathname.toLowerCase()
     if (path.includes('dashboard') || path.includes('home')) return 'dashboard'
-    return path.includes('login') ? 'login' : 'landing'
+    return 'login'
   }
 
   const [currentView, setCurrentView] = useState(getInitialView)
@@ -123,7 +122,7 @@ function App() {
 
   const navigateTo = (view) => {
     setCurrentView(view)
-    const path = view === 'dashboard' ? '/dashboard' : view === 'login' ? '/login' : '/'
+    const path = view === 'dashboard' ? '/dashboard' : '/login'
     window.history.pushState({}, '', path)
   }
 
@@ -132,10 +131,8 @@ function App() {
       const path = window.location.pathname.toLowerCase()
       if (path.includes('dashboard') || path.includes('home')) {
         setCurrentView('dashboard')
-      } else if (path.includes('login')) {
-        setCurrentView('login')
       } else {
-        setCurrentView('landing')
+        setCurrentView('login')
       }
     }
     window.addEventListener('popstate', handlePopState)
@@ -250,16 +247,12 @@ function App() {
     }, 1500)
   }
 
-  if (currentView === 'landing') {
-    return <LandingPage onEnterLogin={() => navigateTo('login')} />
-  }
-
   if (currentView === 'dashboard') {
     return (
       <HomePage
         user={currentUser}
-        onLogout={() => navigateTo('landing')}
-        onGoLanding={() => navigateTo('landing')}
+        onLogout={() => navigateTo('login')}
+        onGoLanding={() => navigateTo('login')}
       />
     )
   }
@@ -279,31 +272,6 @@ function App() {
       {/* Top Header Bar */}
       <header className="top-header">
         <div className="brand-header-left">
-          <button
-            type="button"
-            className="back-hero-btn"
-            onClick={() => navigateTo('landing')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              padding: '0.45rem 0.95rem',
-              marginRight: '0.8rem',
-              borderRadius: '9999px',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
-              background: 'rgba(6, 26, 18, 0.7)',
-              color: '#34d399',
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              backdropFilter: 'blur(8px)',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <ArrowLeft size={16} />
-            <span>3D Hero</span>
-          </button>
-
           <div className="brand-logo-lockup">
             <div className="brand-icon-box">
               <Leaf className="brand-icon" size={26} />

@@ -5,7 +5,7 @@ export default function NewBatchModal({ onClose, onSubmitBatch, defaultItem }) {
   const [cropName, setCropName] = useState(defaultItem?.name || 'Organic Durum Wheat')
   const [quantity, setQuantity] = useState(defaultItem?.quantity || '450 Metric Tons')
   const [origin, setOrigin] = useState(defaultItem?.origin || 'Green Valley Farms, KS')
-  const [price, setPrice] = useState(defaultItem?.pricePerTon || '$340')
+  const [price, setPrice] = useState(defaultItem?.pricePerTon || '₹28,500')
 
   const handleSubmit = (e) => {
     e.preventDefault()

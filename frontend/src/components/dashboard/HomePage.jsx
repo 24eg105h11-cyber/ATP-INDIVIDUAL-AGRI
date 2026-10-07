@@ -17,7 +17,7 @@ export default function HomePage({ user, onLogout, onGoLanding }) {
     totalProduceTons: '1,420 MT',
     verifiedQualityRate: '99.4%',
     activeShipments: 18,
-    escrowSettled: '$4,280,500'
+    escrowSettled: '₹3,54,00,000'
   })
 
   useEffect(() => {

@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
-import { HandCoins, ShieldCheck, Download, ArrowUpRight, DollarSign, CheckCircle2 } from 'lucide-react'
+import { HandCoins, ShieldCheck, Download, ArrowUpRight, IndianRupee, CheckCircle2 } from 'lucide-react'
 
 export default function SettlementsTab({ triggerToast }) {
   const [payoutLoading, setPayoutLoading] = useState(false)
-  const [escrowBalance, setEscrowBalance] = useState('$153,000')
+  const [escrowBalance, setEscrowBalance] = useState('₹1,28,25,000')
 
   const handleInstantPayout = () => {
     setPayoutLoading(true)
     setTimeout(() => {
       setPayoutLoading(false)
-      setEscrowBalance('$0')
+      setEscrowBalance('₹0')
       if (triggerToast) {
-        triggerToast('Instant Payout Released! $153,000 transferred to Farmer bank account.')
+        triggerToast('Instant Payout Released! ₹1,28,25,000 transferred to Farmer bank account.')
       }
     }, 1200)
   }
@@ -59,11 +59,11 @@ export default function SettlementsTab({ triggerToast }) {
           type="button"
           className="banner-action-btn"
           onClick={handleInstantPayout}
-          disabled={payoutLoading || escrowBalance === '$0'}
-          style={{ opacity: escrowBalance === '$0' ? 0.5 : 1 }}
+          disabled={payoutLoading || escrowBalance === '₹0'}
+          style={{ opacity: escrowBalance === '₹0' ? 0.5 : 1 }}
         >
           <HandCoins size={18} />
-          <span>{payoutLoading ? 'Processing Payout...' : escrowBalance === '$0' ? 'Payout Released' : 'Release Instant Payout'}</span>
+          <span>{payoutLoading ? 'Processing Payout...' : escrowBalance === '₹0' ? 'Payout Released' : 'Release Instant Payout'}</span>
         </button>
       </div>
 
@@ -96,9 +96,9 @@ export default function SettlementsTab({ triggerToast }) {
             </thead>
             <tbody>
               {[
-                { id: 'CTR-8841', item: 'Organic Durum Wheat', buyer: 'Global Buyer Inc.', seller: 'John Farmer', amount: '$153,000', status: escrowBalance === '$0' ? 'Settled' : 'In Escrow' },
-                { id: 'CTR-8839', item: 'Arabica Coffee Beans', buyer: 'AgriCorp Roasters', seller: 'Samuel K.', amount: '$222,000', status: 'Settled' },
-                { id: 'CTR-8835', item: 'Hass Avocados', buyer: 'FreshMarket Co.', seller: 'Maria Lopez', amount: '$102,000', status: 'Settled' }
+                { id: 'CTR-8841', item: 'Organic Durum Wheat', buyer: 'Global Buyer Inc.', seller: 'John Farmer', amount: '₹1,28,25,000', status: escrowBalance === '₹0' ? 'Settled' : 'In Escrow' },
+                { id: 'CTR-8839', item: 'Arabica Coffee Beans', buyer: 'AgriCorp Roasters', seller: 'Samuel K.', amount: '₹1,86,00,000', status: 'Settled' },
+                { id: 'CTR-8835', item: 'Hass Avocados', buyer: 'FreshMarket Co.', seller: 'Maria Lopez', amount: '₹83,30,000', status: 'Settled' }
               ].map((row, idx) => (
                 <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                   <td style={{ padding: '0.85rem', fontWeight: 700, color: '#34d399' }}>{row.id}</td>
