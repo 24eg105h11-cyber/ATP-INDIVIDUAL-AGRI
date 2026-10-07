@@ -611,3 +611,45 @@
     display: none;
   }
 }
+
+/* Shipment & QR Portal Specific Styles */
+@keyframes scanLine {
+  0% { top: 0%; opacity: 0.8; }
+  50% { top: 90%; opacity: 1; }
+  100% { top: 0%; opacity: 0.8; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shipment-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.2) !important;
+}
+
+.qr-library-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.7) !important;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.25) !important;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}

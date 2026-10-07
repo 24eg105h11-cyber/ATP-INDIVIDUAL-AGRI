@@ -27,6 +27,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import HomePage from './components/dashboard/HomePage'
+import ShipmentTrackingView from './components/dashboard/ShipmentTrackingView'
 import './App.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
@@ -96,6 +97,7 @@ function SproutIcon(props) {
 function App() {
   const getInitialView = () => {
     const path = window.location.pathname.toLowerCase()
+    if (path.includes('track')) return 'track'
     if (path.includes('dashboard') || path.includes('home')) return 'dashboard'
     return 'login'
   }
@@ -110,26 +112,76 @@ function App() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
-  const [selectedRole, setSelectedRole] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
-  const [currentLang, setCurrentLang] = useState('English')
-  const [biometricModal, setBiometricModal] = useState(false)
-  const [biometricScanning, setBiometricScanning] = useState(false)
-  const [biometricSuccess, setBiometricSuccess] = useState(false)
-  const [toastMessage, setToastMessage] = useState(null)
-  const [backendConnected, setBackendConnected] = useState(false)
+  const [isRegisterMode, setIsRegisterMode] = useState(false)
+  const [regName, setRegName] = useState('')
+  const [regEmail, setRegEmail] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [regRole, setRegRole] = useState('farmer')
+  const [regOrg, setRegOrg] = useState('')
+  const [regPhone, setRegPhone] = useState('')
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: regName,
+          email: regEmail,
+          password: regPassword,
+          role: regRole,
+          organization: regOrg,
+          phone: regPhone
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setBackendConnected(true)
+        const userObj = data.user || {
+          id: 'user_' + Date.now(),
+          name: regName,
+          email: regEmail,
+          role: regRole
+        }
+        setCurrentUser(userObj)
+        triggerToast(`Account created! Welcome to AgriTrade, ${userObj.name}!`)
+        setTimeout(() => navigateTo('dashboard'), 600)
+      } else {
+        triggerToast(data.error || 'Registration failed')
+      }
+    } catch (err) {
+      console.warn('Backend API offline, using fallback registration:', err)
+      const userObj = {
+        id: 'user_' + Date.now(),
+        name: regName || 'New Agri Member',
+        email: regEmail || 'user@agritrade.com',
+        role: regRole || 'farmer'
+      }
+      setCurrentUser(userObj)
+      triggerToast(`Account created! Transitioning to AgriTrade Home...`)
+      setTimeout(() => navigateTo('dashboard'), 600)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const navigateTo = (view) => {
     setCurrentView(view)
-    const path = view === 'dashboard' ? '/dashboard' : '/login'
+    const path = view === 'dashboard' ? '/dashboard' : view === 'track' ? '/track' : '/login'
     window.history.pushState({}, '', path)
   }
 
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase()
-      if (path.includes('dashboard') || path.includes('home')) {
+      if (path.includes('track')) {
+        setCurrentView('track')
+      } else if (path.includes('dashboard') || path.includes('home')) {
         setCurrentView('dashboard')
       } else {
         setCurrentView('login')
@@ -245,6 +297,14 @@ function App() {
         navigateTo('dashboard')
       }, 1000)
     }, 1500)
+  }
+
+  if (currentView === 'track') {
+    return (
+      <div style={{ padding: '2rem', minHeight: '100vh', background: '#020b07', color: '#fff' }}>
+        <ShipmentTrackingView onBack={() => navigateTo('dashboard')} />
+      </div>
+    )
   }
 
   if (currentView === 'dashboard') {
@@ -447,7 +507,7 @@ function App() {
           </div>
         </section>
 
-        {/* RIGHT LOGIN FORM CARD */}
+        {/* RIGHT LOGIN / REGISTER FORM CARD */}
         <section className="login-section">
           <div className="login-card">
             {/* Form Top Emblem & Headings */}
@@ -455,132 +515,259 @@ function App() {
               <div className="emblem-container">
                 <Leaf size={32} className="emblem-icon" />
               </div>
-              <h2 className="login-heading">Welcome Back</h2>
-              <p className="login-subheading">Sign in to your AgriTrade account</p>
+              <h2 className="login-heading">
+                {isRegisterMode ? 'Create AgriTrade Account' : 'Welcome Back'}
+              </h2>
+              <p className="login-subheading">
+                {isRegisterMode
+                  ? 'Join our transparent agricultural marketplace & tracking ledger'
+                  : 'Sign in to your AgriTrade account'}
+              </p>
             </div>
 
-            {/* Login Form */}
-            <form className="login-form" onSubmit={handleSubmit}>
-              <div className="input-group">
-                <label htmlFor="email">Email Address</label>
-                <div className="input-field-wrapper">
-                  <Mail className="input-icon" size={18} />
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    placeholder="Enter your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+            {isRegisterMode ? (
+              /* REGISTRATION FORM */
+              <form className="login-form" onSubmit={handleRegisterSubmit}>
+                <div className="input-group">
+                  <label htmlFor="regName">Full Name</label>
+                  <div className="input-field-wrapper">
+                    <User className="input-icon" size={18} />
+                    <input
+                      id="regName"
+                      type="text"
+                      required
+                      placeholder="e.g. John Farmer"
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="input-group">
-                <label htmlFor="password">Password</label>
-                <div className="input-field-wrapper">
-                  <Lock className="input-icon" size={18} />
-                  <input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle-btn"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                <div className="input-group">
+                  <label htmlFor="regEmail">Email Address</label>
+                  <div className="input-field-wrapper">
+                    <Mail className="input-icon" size={18} />
+                    <input
+                      id="regEmail"
+                      type="email"
+                      required
+                      placeholder="e.g. farmer@agritrade.com"
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Form Actions Row */}
-              <div className="form-options-row">
-                <label className="checkbox-container">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <span className="checkmark"></span>
-                  <span className="checkbox-label">Remember Me</span>
-                </label>
+                <div className="input-group">
+                  <label htmlFor="regPassword">Password</label>
+                  <div className="input-field-wrapper">
+                    <Lock className="input-icon" size={18} />
+                    <input
+                      id="regPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Create a strong password"
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
 
-                <a href="#forgot" className="forgot-password-link" onClick={(e) => { e.preventDefault(); triggerToast('Password reset link sent!'); }}>
-                  Forgot Password?
-                </a>
-              </div>
-
-              {/* Submit Button */}
-              <button type="submit" className="login-btn" disabled={isLoading}>
-                {isLoading ? (
-                  <Loader2 size={20} className="spinner" />
-                ) : (
-                  <>
-                    <LogIn size={18} />
-                    <span>Login</span>
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* OR Divider */}
-            <div className="divider-wrap">
-              <span className="divider-line"></span>
-              <span className="divider-text">OR</span>
-              <span className="divider-line"></span>
-            </div>
-
-            {/* Biometric Button */}
-            <button
-              type="button"
-              className="biometric-btn"
-              onClick={handleBiometricAuth}
-            >
-              <Fingerprint size={22} className="biometric-icon" />
-              <span>Continue with Biometric</span>
-            </button>
-
-            {/* Register Link */}
-            <div className="register-prompt">
-              <span>Don't have an account? </span>
-              <a href="#register" className="register-link" onClick={(e) => { e.preventDefault(); triggerToast('Redirecting to registration...'); }}>
-                Register
-              </a>
-            </div>
-
-            {/* Role Selectors at bottom of form */}
-            <div className="role-selector-container">
-              {ROLES.map((role) => {
-                const IconComponent = role.icon
-                const isSelected = selectedRole === role.id
-                return (
-                  <button
-                    key={role.id}
-                    type="button"
-                    className={`role-item ${isSelected ? 'active' : ''}`}
-                    onClick={() => handleRoleSelect(role)}
-                    title={`Login as ${role.name}`}
-                  >
-                    <div
-                      className="role-avatar"
+                <div className="input-group">
+                  <label htmlFor="regRole">Select Role</label>
+                  <div className="input-field-wrapper" style={{ background: '#03100a' }}>
+                    <User className="input-icon" size={18} />
+                    <select
+                      id="regRole"
+                      value={regRole}
+                      onChange={(e) => setRegRole(e.target.value)}
                       style={{
-                        backgroundColor: role.bg,
-                        color: role.color
+                        width: '100%',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#fff',
+                        padding: '0.75rem 0.5rem 0.75rem 0.5rem',
+                        fontSize: '0.9rem',
+                        outline: 'none',
+                        cursor: 'pointer'
                       }}
                     >
-                      <IconComponent size={18} />
+                      <option value="farmer" style={{ background: '#061a12', color: '#fff' }}>Farmer</option>
+                      <option value="buyer" style={{ background: '#061a12', color: '#fff' }}>Buyer / Enterprise</option>
+                      <option value="collection_manager" style={{ background: '#061a12', color: '#fff' }}>Collection Manager</option>
+                      <option value="inspector" style={{ background: '#061a12', color: '#fff' }}>Quality Inspector</option>
+                      <option value="logistics" style={{ background: '#061a12', color: '#fff' }}>Logistics Transporter</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <button type="submit" className="login-btn" disabled={isLoading} style={{ marginTop: '0.6rem' }}>
+                  {isLoading ? (
+                    <Loader2 size={20} className="spinner" />
+                  ) : (
+                    <>
+                      <Sparkles size={18} />
+                      <span>Create Account & Join</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Switch to Login Link */}
+                <div className="register-prompt" style={{ marginTop: '1.2rem' }}>
+                  <span>Already have an account? </span>
+                  <a
+                    href="#login"
+                    className="register-link"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setIsRegisterMode(false)
+                    }}
+                  >
+                    Sign In
+                  </a>
+                </div>
+              </form>
+            ) : (
+              /* LOGIN FORM */
+              <>
+                <form className="login-form" onSubmit={handleSubmit}>
+                  <div className="input-group">
+                    <label htmlFor="email">Email Address</label>
+                    <div className="input-field-wrapper">
+                      <Mail className="input-icon" size={18} />
+                      <input
+                        id="email"
+                        type="email"
+                        required
+                        placeholder="Enter your email address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </div>
-                    <span className="role-label">{role.name}</span>
+                  </div>
+
+                  <div className="input-group">
+                    <label htmlFor="password">Password</label>
+                    <div className="input-field-wrapper">
+                      <Lock className="input-icon" size={18} />
+                      <input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Form Actions Row */}
+                  <div className="form-options-row">
+                    <label className="checkbox-container">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                      />
+                      <span className="checkmark"></span>
+                      <span className="checkbox-label">Remember Me</span>
+                    </label>
+
+                    <a href="#forgot" className="forgot-password-link" onClick={(e) => { e.preventDefault(); triggerToast('Password reset link sent!'); }}>
+                      Forgot Password?
+                    </a>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button type="submit" className="login-btn" disabled={isLoading}>
+                    {isLoading ? (
+                      <Loader2 size={20} className="spinner" />
+                    ) : (
+                      <>
+                        <LogIn size={18} />
+                        <span>Login</span>
+                      </>
+                    )}
                   </button>
-                )
-              })}
-            </div>
+                </form>
+
+                {/* OR Divider */}
+                <div className="divider-wrap">
+                  <span className="divider-line"></span>
+                  <span className="divider-text">OR</span>
+                  <span className="divider-line"></span>
+                </div>
+
+                {/* Biometric Button */}
+                <button
+                  type="button"
+                  className="biometric-btn"
+                  onClick={handleBiometricAuth}
+                >
+                  <Fingerprint size={22} className="biometric-icon" />
+                  <span>Continue with Biometric</span>
+                </button>
+
+                {/* Register Link */}
+                <div className="register-prompt">
+                  <span>Don't have an account? </span>
+                  <a
+                    href="#register"
+                    className="register-link"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setIsRegisterMode(true)
+                    }}
+                  >
+                    Register
+                  </a>
+                </div>
+
+                {/* Role Selectors at bottom of form */}
+                <div className="role-selector-container">
+                  {ROLES.map((role) => {
+                    const IconComponent = role.icon
+                    const isSelected = selectedRole === role.id
+                    return (
+                      <button
+                        key={role.id}
+                        type="button"
+                        className={`role-item ${isSelected ? 'active' : ''}`}
+                        onClick={() => handleRoleSelect(role)}
+                        title={`Login as ${role.name}`}
+                      >
+                        <div
+                          className="role-avatar"
+                          style={{
+                            backgroundColor: role.bg,
+                            color: role.color
+                          }}
+                        >
+                          <IconComponent size={18} />
+                        </div>
+                        <span className="role-label">{role.name}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>

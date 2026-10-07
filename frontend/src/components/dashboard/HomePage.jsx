@@ -4,12 +4,13 @@ import OverviewTab from './OverviewTab'
 import MarketplaceTab from './MarketplaceTab'
 import TraceabilityTab from './TraceabilityTab'
 import SettlementsTab from './SettlementsTab'
+import ShipmentsTab from './ShipmentsTab'
 import NewBatchModal from './NewBatchModal'
-import { LayoutDashboard, ShoppingBag, MapPin, HandCoins, Plus, Check } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, MapPin, HandCoins, Truck, Plus, Check } from 'lucide-react'
 import './Dashboard.css'
 
 export default function HomePage({ user, onLogout, onGoLanding }) {
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('shipments')
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedContractItem, setSelectedContractItem] = useState(null)
   const [toastMsg, setToastMsg] = useState(null)
@@ -88,6 +89,15 @@ export default function HomePage({ user, onLogout, onGoLanding }) {
         <div className="dash-tabs-bar">
           <button
             type="button"
+            className={`dash-tab-btn ${activeTab === 'shipments' ? 'active' : ''}`}
+            onClick={() => setActiveTab('shipments')}
+          >
+            <Truck size={16} />
+            <span>My Shipments & QR</span>
+          </button>
+
+          <button
+            type="button"
             className={`dash-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
@@ -124,6 +134,10 @@ export default function HomePage({ user, onLogout, onGoLanding }) {
         </div>
 
         {/* Active Tab View Render */}
+        {activeTab === 'shipments' && (
+          <ShipmentsTab user={user} />
+        )}
+
         {activeTab === 'overview' && (
           <OverviewTab
             user={user}
