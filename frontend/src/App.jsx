@@ -120,6 +120,16 @@ function App() {
   const [regOrg, setRegOrg] = useState('')
   const [regPhone, setRegPhone] = useState('')
 
+  const [selectedRole, setSelectedRole] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
+  const [currentLang, setCurrentLang] = useState('English')
+  const [biometricModal, setBiometricModal] = useState(false)
+  const [biometricScanning, setBiometricScanning] = useState(false)
+  const [biometricSuccess, setBiometricSuccess] = useState(false)
+  const [toastMessage, setToastMessage] = useState(null)
+  const [backendConnected, setBackendConnected] = useState(false)
+
   const handleRegisterSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
